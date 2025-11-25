@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="skootr">
+
+  <!-- include each subsystem -->
+  <xacro:include filename="$(find skootr_description)/urdf/frame.xacro"/>
+  <xacro:include filename="$(find skootr_description)/urdf/legs.xacro"/>  
+
+  <!-- instantiate each subsystem -->
+  <xacro:center_ball/>
+  
+  <!-- joing legs to center -->
+  <xacro:leg prefix="leg1" parent_link="first_servo_horn"/>
+  <xacro:leg prefix="leg2" parent_link="second_servo_horn"/>
+  <xacro:leg prefix="leg3" parent_link="third_servo_horn"/>
+</robot>

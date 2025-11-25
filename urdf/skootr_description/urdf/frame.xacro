@@ -1,0 +1,847 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="skootr_frame">
+
+  <!-- Properties definition -->
+  <xacro:property name="mesh_pkg" value="skootr_description"/>
+  <xacro:property name="root_z_offset" value= "0.0195"/>
+
+  <!-- Color properties -->
+  <xacro:property name="skootr_blue"    value="0.231 0.380 0.706 1.0"/>
+  <xacro:property name="skootr_yellow"  value="0.980 0.714 0.004 1.0"/>
+  <xacro:property name="skootr_silver"  value="0.9176 0.9176 0.9176 1.0"/>
+  <xacro:property name="servo_blue"     value="0.043 0.216 0.404 1.0"/>
+  <xacro:property name="horn_purple"    value="0.490 0.086 0.557 1.0"/>
+
+  <!-- Declare colors -->
+  <material name="skootr_blue">
+    <color rgba="${skootr_blue}"/>
+  </material>
+  <material name="skootr_yellow">
+    <color rgba="${skootr_yellow}"/>
+  </material>
+  <material name="skootr_silver">
+    <color rgba="${skootr_silver}"/>
+  </material>
+  <material name="servo_blue">
+    <color rgba="${servo_blue}"/>
+  </material>
+  <material name="horn_purple">
+    <color rgba="${horn_purple}"/>
+  </material>
+
+
+  <xacro:macro name="center_ball" params="">
+    <link name="ball_root">
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </link>
+    <link name="ball_connector">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/hemisphere_connector.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/hemisphere_connector.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 -0.01951 0" rpy="0 0 0"/>
+        <mass value="0.09480"/>
+        <inertia 
+          ixx="2.64e-05" ixy="0"    ixz="0"
+          iyy="2.93e-05" iyz="0"    izz="2.64e-05"/>
+      </inertial>
+    </link>
+    <!-- joining ball_connector to dummy link -->
+    <joint name="root_to_connector" type="continuous">
+      <origin xyz="0.0 0.0 ${root_z_offset}" rpy="${pi/2} 0 0"/>
+      <parent link="ball_root"/>
+      <child link="ball_connector"/>
+      <axis xyz="1.0 1.0 1.0"/>
+    </joint>
+    <!-- top hemisphere -->
+    <link name="hemisphere_top">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/hemisphere.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_silver"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/hemisphere.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0.038176 0" rpy="0 0 0"/>
+        <mass value="2.5179"/>
+        <inertia 
+          ixx="0.0067228" ixy="0"    ixz="0"
+          iyy="0.0104325" iyz="0"    izz="0.0067210"/>
+      </inertial>
+    </link>
+    <link name="hemisphere_bottom">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/hemisphere.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_silver"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/hemisphere.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0.038176 0" rpy="0 0 0"/>
+        <mass value="2.5179"/>
+        <inertia 
+          ixx="0.0067228" ixy="0"    ixz="0"
+          iyy="0.0104325" iyz="0"    izz="0.0067210"/>
+      </inertial>
+    </link>
+
+    <joint name="connector_to_top" type="fixed">
+      <parent link="ball_connector"/>
+      <child  link="hemisphere_top"/>
+      <origin xyz="0 ${-root_z_offset} 0" rpy="0 0 0"/>
+    </joint>
+    <joint name="connector_to_bottom" type="fixed">
+      <parent link="ball_connector"/>
+      <child  link="hemisphere_bottom"/>
+      <origin xyz="0 ${-root_z_offset} 0" rpy="3.14159265 0 0"/>
+    </joint>
+
+    <!-- ring constraint -->
+    <link name="first_ring" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_yellow"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.09911 -0.05723 0.01130" rpy="0 0 0"/>
+        <mass value="0.05080"/>
+        <inertia 
+          ixx="1.62e-04" ixy="-8.22e-05"    ixz="2.93e-07"
+          iyy="6.64e-05" iyz="-2.93e-07"    izz="2.25e-04"/>
+      </inertial>
+    </link>
+    <link name="first_constraint_connector" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint_connector.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_yellow"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint_connector.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.1193 0.0678 0.0100" rpy="0 0 0"/>
+        <mass value="0.00816"/> <!-- Converted from 0.018 lb to kg -->
+        <inertia 
+          ixx="1.1663e-07" ixy="2.9155e-08" ixz="5.5703e-15"
+          iyy="8.7475e-08" iyz="-6.9847e-15" izz="8.7475e-08"/>
+      </inertial>
+    </link>
+    <link name="first_triconstraint" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-92.433 -4.332e-5 66.87" rpy="0 0 0"/>
+        <mass value="0.06304"/> <!-- Converted from 0.139 lb to kg -->
+        <inertia 
+          ixx="1.4480e-05" ixy="-7.4132e-10" ixz="-1.1539e-05"
+          iyy="2.8523e-05" iyz="-8.5296e-10" izz="1.1518e-05"/>
+      </inertial>
+    </link>
+    <link name="second_ring" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_yellow"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.09911 -0.05723 0.01130" rpy="0 0 0"/>
+        <mass value="0.05080"/>
+        <inertia 
+          ixx="1.62e-04" ixy="-8.22e-05"    ixz="2.93e-07"
+          iyy="6.64e-05" iyz="-2.93e-07"    izz="2.25e-04"/>
+      </inertial>
+    </link>
+    <link name="second_constraint_connector" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint_connector.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_yellow"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint_connector.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.1193 0.0678 0.0100" rpy="0 0 0"/>
+        <mass value="0.00816"/> <!-- Converted from 0.018 lb to kg -->
+        <inertia 
+          ixx="1.1663e-07" ixy="2.9155e-08" ixz="5.5703e-15"
+          iyy="8.7475e-08" iyz="-6.9847e-15" izz="8.7475e-08"/>
+      </inertial>
+    </link>
+    <link name="second_triconstraint" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-92.433 -4.332e-5 66.87" rpy="0 0 0"/>
+        <mass value="0.06304"/> <!-- Converted from 0.139 lb to kg -->
+        <inertia 
+          ixx="1.4480e-05" ixy="-7.4132e-10" ixz="-1.1539e-05"
+          iyy="2.8523e-05" iyz="-8.5296e-10" izz="1.1518e-05"/>
+      </inertial>
+    </link>
+    <link name="third_ring" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_yellow"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.09911 -0.05723 0.01130" rpy="0 0 0"/>
+        <mass value="0.05080"/>
+        <inertia 
+          ixx="1.62e-04" ixy="-8.22e-05"    ixz="2.93e-07"
+          iyy="6.64e-05" iyz="-2.93e-07"    izz="2.25e-04"/>
+      </inertial>
+    </link>
+    <link name="third_constraint_connector" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint_connector.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_yellow"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/ringconstraint_connector.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.1193 0.0678 0.0100" rpy="0 0 0"/>
+        <mass value="0.00816"/> <!-- Converted from 0.018 lb to kg -->
+        <inertia 
+          ixx="1.1663e-07" ixy="2.9155e-08" ixz="5.5703e-15"
+          iyy="8.7475e-08" iyz="-6.9847e-15" izz="8.7475e-08"/>
+      </inertial>
+    </link>
+    <link name="third_triconstraint" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-92.433 -4.332e-5 66.87" rpy="0 0 0"/>
+        <mass value="0.06304"/> <!-- Converted from 0.139 lb to kg -->
+        <inertia 
+          ixx="1.4480e-05" ixy="-7.4132e-10" ixz="-1.1539e-05"
+          iyy="2.8523e-05" iyz="-8.5296e-10" izz="1.1518e-05"/>
+      </inertial>
+    </link>
+    <link name="triconstraint_hub" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint_hub.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/triconstraint_hub.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-5.567e-6 4.586e-6 0.147149" rpy="0 0 0"/>
+        <mass value="0.02812"/> <!-- Converted from 0.062 lb to kg -->
+        <inertia 
+          ixx="6.5828e-06" ixy="1.6232e-09" ixz="-1.0979e-09"
+          iyy="6.5828e-06" iyz="8.1455e-10" izz="1.3122e-05"/>
+      </inertial>
+    </link>
+
+    <joint name="first_ring_to_ball" type="fixed">
+      <origin xyz="0.0 0.0 ${-root_z_offset/2}" rpy="0.0 0.0 0.0"/>
+      <parent link="ball_root"/>
+      <child link="first_ring"/>
+    </joint>
+    <joint name="first_ring_to_connector" type="fixed">
+      <origin xyz="0.0 0.0 ${-root_z_offset/2}" rpy="0.0 0.0 0.0"/>
+      <parent link="ball_root"/>
+      <child link="first_constraint_connector"/>
+    </joint>
+    <joint name="first_triconstraint_to_connector" type="fixed">
+      <origin xyz="0.0 0.0 ${root_z_offset/2}" rpy="0.0 0.0 ${pi/6}"/>
+      <parent link="first_ring"/>
+      <child link="first_triconstraint"/>
+    </joint>
+    <joint name="second_ring_to_ball" type="fixed">
+      <origin xyz="0.0 0.0 ${-root_z_offset/2}" rpy="0.0 0.0 ${2*pi/3}"/>
+      <parent link="ball_root"/>
+      <child link="second_ring"/>
+    </joint>
+    <joint name="second_ring_to_connector" type="fixed">
+      <origin xyz="0.0 0.0 ${-root_z_offset/2}" rpy="0.0 0.0 ${2*pi/3}"/>
+      <parent link="ball_root"/>
+      <child link="second_constraint_connector"/>
+    </joint>
+    <joint name="second_triconstraint_to_connector" type="fixed">
+      <origin xyz="0.0 0.0 ${root_z_offset/2}" rpy="0.0 0.0 ${pi/6}"/>
+      <parent link="second_ring"/>
+      <child link="second_triconstraint"/>
+    </joint>
+    <joint name="third_ring_to_ball" type="fixed">
+      <origin xyz="0.0 0.0 ${-root_z_offset/2}" rpy="0.0 0.0 ${4*pi/3}"/>
+      <parent link="ball_root"/>
+      <child link="third_ring"/>
+    </joint>
+    <joint name="third_ring_to_connector" type="fixed">
+      <origin xyz="0.0 0.0 ${-root_z_offset/2}" rpy="0.0 0.0 ${4*pi/3}"/>
+      <parent link="ball_root"/>
+      <child link="third_constraint_connector"/>
+    </joint>
+    <joint name="third_triconstraint_to_connector" type="fixed">
+      <origin xyz="0.0 0.0 ${root_z_offset/2}" rpy="0.0 0.0 ${pi/6}"/>
+      <parent link="third_ring"/>
+      <child link="third_triconstraint"/>
+    </joint>
+    <joint name="triconstraints_to_hub" type="fixed">
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${pi/6}"/>
+      <parent link="ball_root"/>
+      <child link="triconstraint_hub"/>
+    </joint>
+
+    <link name="metal_bearing">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_silver"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0.01198 0" rpy="0 0 0"/>
+        <mass value="0.0957"/> <!-- Converted from 0.211 lb to kg -->
+        <inertia 
+          ixx="1.629e-05" ixy="0" ixz="0"
+          iyy="1.979e-05" iyz="0" izz="1.629e-05"/>
+      </inertial>
+    </link>
+    <link name="first_metal_bearing">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_silver"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0.01198 0" rpy="0 0 0"/>
+        <mass value="0.0957"/> <!-- Converted from 0.211 lb to kg -->
+        <inertia 
+          ixx="1.629e-05" ixy="0" ixz="0"
+          iyy="1.979e-05" iyz="0" izz="1.629e-05"/>
+      </inertial>
+    </link>
+    <link name="second_metal_bearing">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_silver"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0.01198 0" rpy="0 0 0"/>
+        <mass value="0.0957"/> <!-- Converted from 0.211 lb to kg -->
+        <inertia 
+          ixx="1.629e-05" ixy="0" ixz="0"
+          iyy="1.979e-05" iyz="0" izz="1.629e-05"/>
+      </inertial>
+    </link>
+    <link name="third_metal_bearing">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_silver"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/metal_bearing.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0.01198 0" rpy="0 0 0"/>
+        <mass value="0.0957"/> <!-- Converted from 0.211 lb to kg -->
+        <inertia 
+          ixx="1.629e-05" ixy="0" ixz="0"
+          iyy="1.979e-05" iyz="0" izz="1.629e-05"/>
+      </inertial>
+    </link>
+    <link name="servo_hub_bottom" type="fixed">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_hub_bottom.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_hub_bottom.stl" 
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0.005" rpy="0 0 0"/>
+        <mass value="0.03447"/> <!-- Converted from 0.076 lb to kg -->
+        <inertia 
+          ixx="1.858e-05" ixy="0" ixz="0"
+          iyy="1.858e-05" iyz="0" izz="3.690e-05"/>
+      </inertial>
+    </link>
+
+    <joint name="hub_to_bearing" type="fixed">
+      <origin xyz="0.0 0.0 0.138835" rpy="${-pi/2} 0.0 0.0"/>
+      <parent link="triconstraint_hub"/>
+      <child link="metal_bearing"/>
+    </joint>
+    <joint name="first_triconstraint_to_bearing" type="fixed">
+      <origin xyz="-0.1322 0.0 -0.0274574" rpy="0.20 0.0 ${-pi/2}"/>
+      <parent link="first_triconstraint"/>
+      <child link="first_metal_bearing"/>
+    </joint>
+    <joint name="second_triconstraint_to_bearing" type="fixed">
+      <origin xyz="-0.1322 0.0 -0.0274574" rpy="0.20 0.0 ${-pi/2}"/>
+      <parent link="second_triconstraint"/>
+      <child link="second_metal_bearing"/>
+    </joint>
+    <joint name="third_triconstraint_to_bearing" type="fixed">
+      <origin xyz="-0.1322 0.0 -0.0274574" rpy="0.20 0.0 ${-pi/2}"/>
+      <parent link="third_triconstraint"/>
+      <child link="third_metal_bearing"/>
+    </joint>
+    <joint name="triconstraint_to_bottomhubs" type="fixed">
+      <origin xyz="0.0 0.0 0.103912" rpy="0.0 0.0 0.0"/>
+      <parent link="first_triconstraint"/>
+      <child link="servo_hub_bottom"/>
+    </joint>
+
+
+    <!-- Servo -->
+    <link name="first_servo">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/60_kg_servo.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="servo_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/60_kg_servo.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="2.7e-5 0 2.02e-4" rpy="0 0 0"/>
+        <mass value="0.2577"/> <!-- Converted from 0.568 lb to kg -->
+        <inertia 
+          ixx="6.3523e-05" ixy="0" ixz="-1.7854e-07"
+          iyy="1.3415e-04" iyz="0" izz="1.1411e-04"/>
+      </inertial>
+    </link>
+    <link name="second_servo">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/60_kg_servo.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="servo_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/60_kg_servo.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="2.7e-5 0 2.02e-4" rpy="0 0 0"/>
+        <mass value="0.2577"/> <!-- Converted from 0.568 lb to kg -->
+        <inertia 
+          ixx="6.3523e-05" ixy="0" ixz="-1.7854e-07"
+          iyy="1.3415e-04" iyz="0" izz="1.1411e-04"/>
+      </inertial>
+    </link>
+    <link name="third_servo">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/60_kg_servo.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="servo_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/60_kg_servo.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="2.7e-5 0 2.02e-4" rpy="0 0 0"/>
+        <mass value="0.2577"/> <!-- Converted from 0.568 lb to kg -->
+        <inertia 
+          ixx="6.3523e-05" ixy="0" ixz="-1.7854e-07"
+          iyy="1.3415e-04" iyz="0" izz="1.1411e-04"/>
+      </inertial>
+    </link>
+    <link name="first_servo_mount">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_mount_60kg.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_mount_60kg.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-9.261e-7 -0.004547 0.010341" rpy="0 0 0"/>
+        <mass value="0.0893"/> <!-- Converted from 0.197 lb to kg -->
+        <inertia 
+          ixx="8.5327e-05" ixy="2.9828e-08" ixz="-1.0904e-08"
+          iyy="2.7098e-05" iyz="1.4128e-06" izz="8.8359e-05"/>
+      </inertial>
+    </link>
+    <link name="second_servo_mount">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_mount_60kg.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_mount_60kg.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-9.261e-7 -0.004547 0.010341" rpy="0 0 0"/>
+        <mass value="0.0893"/> <!-- Converted from 0.197 lb to kg -->
+        <inertia 
+          ixx="8.5327e-05" ixy="2.9828e-08" ixz="-1.0904e-08"
+          iyy="2.7098e-05" iyz="1.4128e-06" izz="8.8359e-05"/>
+      </inertial>
+    </link>
+    <link name="third_servo_mount">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_mount_60kg.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/servo_mount_60kg.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="-9.261e-7 -0.004547 0.010341" rpy="0 0 0"/>
+        <mass value="0.0893"/> <!-- Converted from 0.197 lb to kg -->
+        <inertia 
+          ixx="8.5327e-05" ixy="2.9828e-08" ixz="-1.0904e-08"
+          iyy="2.7098e-05" iyz="1.4128e-06" izz="8.8359e-05"/>
+      </inertial>
+    </link>
+
+    <joint name="first_servo_to_slot" type="fixed">
+      <origin xyz="0.0 0.0 0.0278" rpy="0.0 0.0 ${pi/2}"/>
+      <parent link="first_servo_mount"/>
+      <child link="first_servo"/>
+    </joint>
+    <joint name="second_servo_to_slot" type="fixed">
+      <origin xyz="0.0 0.0 0.0278" rpy="0.0 0.0 ${pi/2}"/>
+      <parent link="second_servo_mount"/>
+      <child link="second_servo"/>
+    </joint>
+    <joint name="third_servo_to_slot" type="fixed">
+      <origin xyz="0.0 0.0 0.0278" rpy="0.0 0.0 ${pi/2}"/>
+      <parent link="third_servo_mount"/>
+      <child link="third_servo"/>
+    </joint>
+    <joint name="first_servo_to_hub" type="fixed">
+      <origin xyz="0.078 0.014 0.026" rpy="0.0 ${pi/2} ${-pi/2}"/>
+      <parent link="servo_hub_bottom"/>
+      <child link="first_servo_mount"/>
+    </joint>
+    <joint name="second_servo_to_hub" type="fixed">
+      <origin xyz="-0.027 -0.0745 0.026" rpy="0.0 ${pi/2} ${pi/2+pi/3}"/>
+      <parent link="servo_hub_bottom"/>
+      <child link="second_servo_mount"/>
+    </joint>
+    <joint name="third_servo_to_hub" type="fixed">
+      <origin xyz="-0.051 0.0605 0.026" rpy="0.0 ${pi/2} ${pi/2-pi/3}"/>
+      <parent link="servo_hub_bottom"/>
+      <child link="third_servo_mount"/>
+    </joint>
+
+    <!-- connecting with legs, adding horn -->
+    <link name="first_servo_horn">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/18T_servo_horn.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="horn_purple"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/18T_servo_horn.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 -0.0105 0.002" rpy="0 0 0"/>
+        <mass value="0.0059"/> <!-- Converted from 0.013 lb to kg -->
+        <inertia 
+          ixx="8.7107e-07" ixy="0" ixz="0"
+          iyy="1.0047e-07" iyz="0" izz="8.7107e-07"/>
+      </inertial>
+    </link>
+    <link name="second_servo_horn">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/18T_servo_horn.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="horn_purple"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/18T_servo_horn.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 -0.0105 0.002" rpy="0 0 0"/>
+        <mass value="0.0059"/> <!-- Converted from 0.013 lb to kg -->
+        <inertia 
+          ixx="8.7107e-07" ixy="0" ixz="0"
+          iyy="1.0047e-07" iyz="0" izz="8.7107e-07"/>
+      </inertial>
+    </link>
+    <link name="third_servo_horn">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/18T_servo_horn.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="horn_purple"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/non_printed/18T_servo_horn.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 -0.0105 0.002" rpy="0 0 0"/>
+        <mass value="0.0059"/> <!-- Converted from 0.013 lb to kg -->
+        <inertia 
+          ixx="8.7107e-07" ixy="0" ixz="0"
+          iyy="1.0047e-07" iyz="0" izz="8.7107e-07"/>
+      </inertial>
+    </link>
+
+    <joint name="first_servo_to_horn" type="revolute">
+      <origin xyz="0.019 -0.0 0.0245" rpy="0 0 ${pi/2 + 0.872664626}"/>
+      <axis xyz="0 0 -1"/>
+      <parent link="first_servo"/>
+      <child link="first_servo_horn"/>
+      <limit effort="50" velocity="1" lower="-0" upper="1.187"/>
+    </joint>
+    <joint name="second_servo_to_horn" type="revolute">
+      <origin xyz="0.019 -0.0 0.0245" rpy="0 0 ${pi/2 + 0.872664626}"/>
+      <axis xyz="0 0 -1"/>
+      <parent link="second_servo"/>
+      <child link="second_servo_horn"/>
+      <limit effort="50" velocity="1" lower="-0" upper="1.187"/>
+    </joint>
+    <joint name="third_servo_to_horn" type="revolute">
+      <origin xyz="0.019 -0.0 0.0245" rpy="0 0 ${pi/2 + 0.872664626}"/>
+      <axis xyz="0 0 -1"/>
+      <parent link="third_servo"/>
+      <child link="third_servo_horn"/>
+      <limit effort="50" velocity="1" lower="-0" upper="1.187"/>
+    </joint>
+
+
+    <!-- electronics -->
+    <link name="electronics_platform">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/electronics_platform.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/electronics_platform.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.000381 -0.000483 -0.01667" rpy="0 0 0"/>
+        <mass value="0.0984"/> <!-- Converted from 0.217 lb to kg -->
+        <inertia 
+          ixx="1.859e-04" ixy="2.904e-07" ixz="-1.193e-07"
+          iyy="1.833e-04" iyz="2.904e-07" izz="2.894e-04"/>
+      </inertial>
+    </link>
+    <link name="lid">
+      <visual>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/lid.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="skootr_blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://${mesh_pkg}/meshes/frame/lid.stl"
+                scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 -0.021475" rpy="0 0 0"/>
+        <mass value="0.0821"/> <!-- Converted from 0.181 lb to kg -->
+        <inertia 
+          ixx="1.564e-04" ixy="0" ixz="0"
+          iyy="1.564e-04" iyz="0" izz="2.256e-04"/>
+      </inertial>
+    </link>
+    <joint name="triconstraint_hub_to_electronics_platform" type="fixed">
+      <origin xyz="0.0 -0.0 0.156" rpy="0.0 ${pi} ${pi/6}"/>
+      <parent link="triconstraint_hub"/>
+      <child link="electronics_platform"/>
+    </joint>
+    <joint name="electronics_platform_to_lid" type="fixed">
+      <origin xyz="0.0 -0.0 -0.05" rpy="0.0 0.0 0.0"/>
+      <parent link="electronics_platform"/>
+      <child link="lid"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>
